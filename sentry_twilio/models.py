@@ -91,7 +91,7 @@ class TwilioCallConfigurationForm(forms.Form):
         return self.cleaned_data
 
         
-class TwilioSMSPlugin(NotificationPlugin):
+class TwilioPlugin(NotificationPlugin):
     author = 'Matt Robenolt'
     author_url = 'https://github.com/mattrobenolt'
     version = sentry_twilio.VERSION
