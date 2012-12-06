@@ -139,7 +139,7 @@ class TwilioSMSPlugin(NotificationPlugin):
         client = TwilioRestClient(account_sid, auth_token)
 
         for phone in sms_to:
-            client.sms.messages.create(to=phone, from_=sms_from, body="Hello there!")
+            client.sms.messages.create(to=phone, from_=sms_from, body=body)
 
         
 
