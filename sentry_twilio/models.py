@@ -42,13 +42,7 @@ class TwilioSMSConfigurationForm(forms.Form):
         return data
 
     def clean_sms_to(self):
-        data = self.cleaned_data['sms_to']
-        phones = set(filter(bool, split_re.split(data)))
-        for phone in phones:
-            if not phone_re.match(phone):
-                raise forms.ValidationError('{0} is not a valid phone number.'.format(phone))
-
-        return ','.join(phones)
+        return data
 
     def clean(self):
         # TODO: Ping Twilio and check credentials (?)
