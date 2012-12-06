@@ -33,7 +33,9 @@ setup(
             'twilio = sentry_twilio',
         ],
         'sentry.plugins': [
-            'twilio = sentry_twilio.models:TwilioPlugin',
+            'twilio_sms = sentry_twilio.models:TwilioSMSPlugin',
+            'twilio_call = sentry_twilio.models:TwilioCallPlugin',
+
         ]
     },
     classifiers=[
