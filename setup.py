@@ -18,7 +18,7 @@ install_requires = [
 
 setup(
     name='sentry-twilio',
-    version='0.1.1',
+    version='0.1.5',
     author='Matt Robenolt',
     author_email='matt@ydekproductons.com',
     url='https://github.com/mattrobenolt/sentry-twilio',
