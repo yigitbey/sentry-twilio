@@ -185,7 +185,8 @@ class TwilioCallPlugin(NotificationPlugin):
         twiml_url = self.get_option('twiml_url', project)
         client = TwilioRestClient(account_sid, auth_token)
 
-        client.calls.create(to=call_to,
+        for phone in call_to:
+            client.calls.create(to=phone,
                                    from_=call_from,
                                    url=twiml_url)
 
