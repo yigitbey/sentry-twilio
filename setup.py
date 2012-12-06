@@ -12,7 +12,8 @@ from setuptools import setup, find_packages
 
 
 install_requires = [
-    'sentry>=5.0.0'
+    'sentry>=5.0.0',
+    'twilio>=3.4.1',
 ]
 
 setup(
@@ -33,7 +34,7 @@ setup(
             'twilio = sentry_twilio',
         ],
         'sentry.plugins': [
-            'twilio_sms = sentry_twilio.models:TwilioPlugin',
+            'twilio_sms = sentry_twilio.models:TwilioSMSPlugin',
             'twilio_call = sentry_twilio.models:TwilioCallPlugin',
 
         ]

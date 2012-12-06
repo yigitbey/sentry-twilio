@@ -7,11 +7,10 @@ sentry_twilio.models
 """
 
 import re
-import urllib
-import urllib2
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from sentry.plugins.bases.notify import NotificationPlugin
+from twilio.rest import TwilioRestClient 
 
 import sentry_twilio
 
@@ -67,7 +66,11 @@ class TwilioCallConfigurationForm(forms.Form):
     call_to = forms.CharField(label=_('Call To #s'), required=True,
         help_text=_('Recipient(s) phone numbers separated by commas or lines'),
         widget=forms.Textarea(attrs={'placeholder': 'e.g. 33-050-9893095, +33-050-5555555555'}))
+    twiml_url = forms.CharField(label=_('Twiml response URL'), required=True,
+        help_text=_('Twiml response URL'),
+        widget=forms.Textarea(attrs={'placeholder': 'http://twimlets.com/holdmusic?Bucket=com.twilio.music.ambient'}))
 
+    
     def clean_call_from(self):
         data = self.cleaned_data['call_from']
         if not phone_re.match(data):
@@ -77,6 +80,11 @@ class TwilioCallConfigurationForm(forms.Form):
             data = '+1' + data
         return data
 
+    def clean_twiml_url(self):
+        # TODO: check URL
+        return self.cleaned_data['twiml_url']
+        
+        
     def clean_call_to(self):
         data = self.cleaned_data['call_to']
         phones = set(filter(bool, split_re.split(data)))
@@ -86,12 +94,14 @@ class TwilioCallConfigurationForm(forms.Form):
 
         return ','.join(phones)
 
+
+        
     def clean(self):
         # TODO: Ping Twilio and check credentials (?)
         return self.cleaned_data
 
         
-class TwilioPlugin(NotificationPlugin):
+class TwilioSMSPlugin(NotificationPlugin):
     author = 'Matt Robenolt'
     author_url = 'https://github.com/mattrobenolt'
     version = sentry_twilio.VERSION
@@ -109,6 +119,7 @@ class TwilioPlugin(NotificationPlugin):
     conf_key = 'twilio_sms'
     project_conf_form = TwilioSMSConfigurationForm
 
+    
     def is_configured(self, request, project, **kwargs):
         return all([self.get_option(o, project) for o in ('account_sid', 'auth_token', 'sms_from', 'sms_to')])
 
@@ -130,34 +141,12 @@ class TwilioPlugin(NotificationPlugin):
         auth_token = self.get_option('auth_token', project)
         sms_from = self.get_option('sms_from', project)
         sms_to = self.get_option('sms_to', project).split(',')
-        endpoint = twilio_sms_endpoint.format(account_sid)
 
-        # Herein lies the goat rodeo that is urllib2
+        client = TwilioRestClient(account_sid, auth_token)
 
-        # Sure, totally makes sense. PasswordMgrWithDefault..fuck
-        manager = urllib2.HTTPPasswordMgrWithDefaultRealm()
-        manager.add_password(None, endpoint, account_sid, auth_token)
-        # Obviously, you need an AuthHandler thing
-        handler = urllib2.HTTPBasicAuthHandler(manager)
-        # Build that fucking opener
-        opener = urllib2.build_opener(handler)
-        # Install that shit, hardcore
-        urllib2.install_opener(opener)
+        client.sms.messages.create(to=sms_to, from_=sms_from, body="Hello there!")
 
-        for phone in sms_to:
-            data = urllib.urlencode({
-                'From': sms_from,
-                'To': phone,
-                'Body': body,
-            })
-            try:
-                urllib2.urlopen(endpoint, data)
-            except urllib2.URLError:
-                # This could happen for any number of reasons
-                # Twilio may have legitimately errored,
-                # Bad auth credentials, etc
-                pass
-
+        
 
                 
 class TwilioCallPlugin(NotificationPlugin):
@@ -179,7 +168,7 @@ class TwilioCallPlugin(NotificationPlugin):
     project_conf_form = TwilioCallConfigurationForm
 
     def is_configured(self, request, project, **kwargs):
-        return all([self.get_option(o, project) for o in ('account_sid', 'auth_token', 'call_from', 'call_to')])
+        return all([self.get_option(o, project) for o in ('account_sid', 'auth_token', 'call_from', 'call_to','twiml_url')])
 
     def get_send_to(self, *args, **kwargs):
         # This doesn't depend on email permission... stuff.
@@ -192,29 +181,11 @@ class TwilioCallPlugin(NotificationPlugin):
         auth_token = self.get_option('auth_token', project)
         call_from = self.get_option('call_from', project)
         call_to = self.get_option('call_to', project).split(',')
-        endpoint = twilio_call_endpoint.format(account_sid)
+        twiml_url = self.get_option('twiml_url', project)
+        client = TwilioRestClient(account_sid, auth_token)
 
-        # Herein lies the goat rodeo that is urllib2
+        client.calls.create(to=call_to,
+                                   from_=call_from,
+                                   url=twiml_url)
 
-        # Sure, totally makes sense. PasswordMgrWithDefault..fuck
-        manager = urllib2.HTTPPasswordMgrWithDefaultRealm()
-        manager.add_password(None, endpoint, account_sid, auth_token)
-        # Obviously, you need an AuthHandler thing
-        handler = urllib2.HTTPBasicAuthHandler(manager)
-        # Build that fucking opener
-        opener = urllib2.build_opener(handler)
-        # Install that shit, hardcore
-        urllib2.install_opener(opener)
-
-        for phone in call_to:
-            data = urllib.urlencode({
-                'From': call_from,
-                'To': phone,
-            })
-            try:
-                urllib2.urlopen(endpoint, data)
-            except urllib2.URLError:
-                # This could happen for any number of reasons
-                # Twilio may have legitimately errored,
-                # Bad auth credentials, etc
-                pass
+        
