@@ -16,7 +16,7 @@ install_requires = [
 ]
 
 setup(
-    name='sentry-twilio',
+    name='sentry-twilio-call',
     version='0.1.0',
     author='Matt Robenolt',
     author_email='matt@ydekproductons.com',
