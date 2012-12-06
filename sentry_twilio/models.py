@@ -42,7 +42,7 @@ class TwilioSMSConfigurationForm(forms.Form):
         return data
 
     def clean_sms_to(self):
-        return data
+        return self.cleaned_data['sms_to']
 
     def clean(self):
         # TODO: Ping Twilio and check credentials (?)
