@@ -2,9 +2,8 @@
 A plugin for [Sentry](https://www.getsentry.com/) that sends SMS notifications via [Twilio](http://www.twilio.com/)
 
 **Note**: Only works with US numbers, mostly because I'm too lazy to think about international phone numbers and what to do with them. Feel free to submit a pull request.
+**Fork update**: Changed the phone validation regex, it should work with International numbers now.
 
-## Installation
-`$ pip install sentry-twilio`
 
 Sentry will automagically detect that it has been installed.
 
@@ -30,5 +29,5 @@ A list of phone numbers to send to separated by commas.
 
 Example:
 ```
-+13305093095, 5551234567
++12-455-4325522, 55-512-3456794
 ```
