@@ -2,7 +2,8 @@
 A plugin for [Sentry](https://www.getsentry.com/) that sends SMS notifications via [Twilio](http://www.twilio.com/)
 
 **Note**: Only works with US numbers, mostly because I'm too lazy to think about international phone numbers and what to do with them. Feel free to submit a pull request.
-**Fork update**: Changed the phone validation regex, it should work with International numbers now.
+
+**Fork update**: Changed the phone validation regex, it should also work with International numbers now.
 
 
 Sentry will automagically detect that it has been installed.
