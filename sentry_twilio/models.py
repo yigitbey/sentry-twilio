@@ -7,6 +7,7 @@ sentry_twilio.models
 """
 
 import re
+import urllib
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 from sentry.plugins.bases.notify import NotificationPlugin
@@ -183,6 +184,8 @@ class TwilioCallPlugin(NotificationPlugin):
             event.get_level_display().upper().encode('utf-8'),
             event.error().encode('utf-8').splitlines()[0]
         )
+
+        message_body = urllib.urlencode(message_body)
         
         account_sid = self.get_option('account_sid', project)
         auth_token = self.get_option('auth_token', project)
