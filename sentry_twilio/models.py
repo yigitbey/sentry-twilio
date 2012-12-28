@@ -67,8 +67,8 @@ class TwilioCallConfigurationForm(forms.Form):
     call_to = forms.CharField(label=_('Call To #s'), required=True,
         help_text=_('Recipient(s) phone numbers separated by commas or lines'),
         widget=forms.Textarea(attrs={'placeholder': 'e.g. 33-050-9893095, +33-050-5555555555'}))
-    twiml_url = forms.CharField(label=_('Twiml response URL. Message parameter will be appended to this url.'), required=True,
-        help_text=_('Twiml response URL'),
+    twiml_url = forms.CharField(label=_('Twiml response URL.'), required=True,
+        help_text=_('Twiml response URL.  Message parameter will be appended to this url.'),
         widget=forms.Textarea(attrs={'placeholder': 'http://twimlets.com/message?'}))
     
     
@@ -184,14 +184,15 @@ class TwilioCallPlugin(NotificationPlugin):
             event.get_level_display().upper().encode('utf-8'),
             event.error().encode('utf-8').splitlines()[0]
         )
-
-        message_body = urllib.quote(message_body)
+        body = { 'message': message_body }
+        
+        message_body = urllib.urlencode(body)
         
         account_sid = self.get_option('account_sid', project)
         auth_token = self.get_option('auth_token', project)
         call_from = self.get_option('call_from', project)
         call_to = self.get_option('call_to', project).split(',')
-        twiml_url = self.get_option('twiml_url', project) + "&Message=" + message_body
+        twiml_url = self.get_option('twiml_url', project) + "&" + message_body
                                 
         client = TwilioRestClient(account_sid, auth_token)
 
