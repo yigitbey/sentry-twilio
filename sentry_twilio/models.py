@@ -185,13 +185,14 @@ class TwilioCallPlugin(NotificationPlugin):
             event.error().encode('utf-8').splitlines()[0]
         )
 
-        message_body = urllib.urlencode(message_body)
+        message_body = urllib.quote(message_body)
         
         account_sid = self.get_option('account_sid', project)
         auth_token = self.get_option('auth_token', project)
         call_from = self.get_option('call_from', project)
         call_to = self.get_option('call_to', project).split(',')
         twiml_url = self.get_option('twiml_url', project) + "&Message=" + message_body
+                                
         client = TwilioRestClient(account_sid, auth_token)
 
         for phone in call_to:
